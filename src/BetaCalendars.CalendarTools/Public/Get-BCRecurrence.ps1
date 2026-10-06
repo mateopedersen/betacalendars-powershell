@@ -60,8 +60,8 @@ function Get-BCRecurrence {
         switch ($Pattern) {
             Daily { $candidate=(([int]($cursor-$start).TotalDays % $Interval) -eq 0) }
             Weekly {
-                $weekStart = $start.AddDays(-(((int)$start.DayOfWeek - (ConvertTo-BCWeekdayNumber 'Monday') + 7) % 7))
-                $cursorWeek = $cursor.AddDays(-(((int)$cursor.DayOfWeek - (ConvertTo-BCWeekdayNumber 'Monday') + 7) % 7))
+                $weekStart = $start.AddDays(-(([int]$start.DayOfWeek - (ConvertTo-BCWeekdayNumber 'Monday') + 7) % 7))
+                $cursorWeek = $cursor.AddDays(-(([int]$cursor.DayOfWeek - (ConvertTo-BCWeekdayNumber 'Monday') + 7) % 7))
                 $weeks=[int](($cursorWeek-$weekStart).TotalDays/7)
                 $candidate=($weeks % $Interval -eq 0) -and $cursor.DayOfWeek -eq $start.DayOfWeek
                 if ($PSBoundParameters.ContainsKey('Weekday')) { $candidate=($weeks % $Interval -eq 0) -and ([string]$cursor.DayOfWeek -in $Weekday) }
