@@ -3,7 +3,8 @@ Import-Module $script:modulePath -Force
 
 Describe 'BetaCalendars.CalendarTools manifest and exports' {
     It 'has a valid manifest and explicit public functions' {
-        { Test-ModuleManifest $script:modulePath -ErrorAction Stop } | Should -Not -Throw
+        $manifestPath = Join-Path (Get-Location).Path 'src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1'
+        { Test-ModuleManifest $manifestPath -ErrorAction Stop } | Should -Not -Throw
         $commands = @(Get-Command -Module BetaCalendars.CalendarTools -CommandType Function)
         $commands.Count | Should -Be 8
         (Get-Command -Module BetaCalendars.CalendarTools -Name '*') | Should -Not -BeNullOrEmpty
