@@ -80,8 +80,7 @@ jobs:
       - name: Pester
         shell: pwsh
         run: |
-          $coverageFiles = (Get-ChildItem ./src/BetaCalendars.CalendarTools/Public -Filter *.ps1).FullName
-          Invoke-Pester ./tests -CI -CodeCoverage $coverageFiles
+          Invoke-Pester ./tests -CI
       - name: Run examples and help smoke tests
         shell: pwsh
         run: |
