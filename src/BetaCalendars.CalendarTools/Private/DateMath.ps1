@@ -1,4 +1,4 @@
-function Get-BCMonthBounds {
+function Get-BCMonthBound {
     [CmdletBinding()]
     param([Parameter(Mandatory)][ValidateRange(1,9999)][int]$Year,
           [Parameter(Mandatory)][ValidateRange(1,12)][int]$Month)
@@ -13,7 +13,7 @@ function ConvertTo-BCWeekdayNumber {
     return [int]$map[$Weekday]
 }
 
-function Get-BCGridCells {
+function Get-BCGridCell {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][int]$Year,
@@ -23,7 +23,7 @@ function Get-BCGridCells {
         [Parameter(Mandatory)][ValidateSet('Adjacent','Blank')][string]$Overflow,
         [datetime[]]$SpecialDate = @()
     )
-    $bounds = Get-BCMonthBounds -Year $Year -Month $Month
+    $bounds = Get-BCMonthBound -Year $Year -Month $Month
     $weekStartNumber=ConvertTo-BCWeekdayNumber $WeekStart
     $firstOffset = (([int]$bounds.Start.DayOfWeek - $weekStartNumber) + 7) % 7
     $monthFirstOrdinal=[int](($bounds.Start-[datetime]::MinValue).TotalDays)

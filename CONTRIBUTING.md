@@ -11,3 +11,8 @@ Invoke-Pester ./tests
 ```
 
 Changes to a published version require a new semantic version.
+
+PSScriptAnalyzer may report `PSUseShouldProcessForStateChangingFunctions` for
+`New-BCMonthGrid`, `New-BCYearGrid`, and `New-BCYearTurnFixture`. Those findings
+are intentionally accepted: the functions return in-memory data and perform no
+external state changes, so `-WhatIf` would not represent a meaningful operation.

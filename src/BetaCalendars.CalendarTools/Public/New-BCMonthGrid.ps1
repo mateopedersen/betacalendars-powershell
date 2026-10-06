@@ -36,7 +36,7 @@ function New-BCMonthGrid {
         [ValidateSet('Adjacent','Blank')][string]$Overflow='Adjacent',
         [datetime[]]$SpecialDate=@()
     )
-    $cells = @(Get-BCGridCells -Year $Year -Month $Month -WeekStart $WeekStart -Layout $Layout -Overflow $Overflow -SpecialDate $SpecialDate)
+    $cells = @(Get-BCGridCell -Year $Year -Month $Month -WeekStart $WeekStart -Layout $Layout -Overflow $Overflow -SpecialDate $SpecialDate)
     [pscustomobject][ordered]@{
         PSTypeName='BetaCalendars.CalendarTools.MonthGrid'
         Year=$Year; Month=$Month; WeekStart=$WeekStart; Layout=$Layout; Overflow=$Overflow
