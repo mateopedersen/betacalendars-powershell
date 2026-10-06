@@ -22,19 +22,20 @@ jobs:
         shell: pwsh
         run: |
           $version = '${{ matrix.powershell }}'
+          $architecture = if ($env:RUNNER_ARCH -eq 'ARM64') { 'arm64' } else { 'x64' }
           if ($IsWindows) {
-            $asset = "PowerShell-$version-win-x64.zip"
+            $asset = "PowerShell-$version-win-$architecture.zip"
           } elseif ($IsMacOS) {
-            $asset = "powershell-$version-osx-arm64.tar.gz"
+            $asset = "powershell-$version-osx-$architecture.tar.gz"
           } else {
-            $asset = "powershell-$version-linux-x64.tar.gz"
+            $asset = "powershell-$version-linux-$architecture.tar.gz"
           }
           $base = "https://github.com/PowerShell/PowerShell/releases/download/v$version"
           $archive = Join-Path $env:RUNNER_TEMP $asset
           $hashFile = Join-Path $env:RUNNER_TEMP 'powershell-hashes.sha256'
           Invoke-WebRequest "$base/$asset" -OutFile $archive
           Invoke-WebRequest "$base/hashes.sha256" -OutFile $hashFile
-          $entry = Get-Content $hashFile | Where-Object { $_ -match "\s$([regex]::Escape($asset))$" } | Select-Object -First 1
+          $entry = Get-Content $hashFile | Where-Object { $_.TrimEnd().EndsWith($asset, [StringComparison]::Ordinal) } | Select-Object -First 1
           if (-not $entry) { throw "No release checksum found for $asset." }
           $expected = ($entry -split '\s+')[0]
           $actual = (Get-FileHash $archive -Algorithm SHA256).Hash
