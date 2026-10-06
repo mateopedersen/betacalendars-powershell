@@ -1,9 +1,9 @@
-$modulePath = Join-Path $PSScriptRoot '../src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1'
-Import-Module $modulePath -Force
+$script:modulePath = Join-Path $PSScriptRoot '../src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1'
+Import-Module $script:modulePath -Force
 
 Describe 'BetaCalendars.CalendarTools manifest and exports' {
     It 'has a valid manifest and explicit public functions' {
-        { Test-ModuleManifest $modulePath -ErrorAction Stop } | Should -Not -Throw
+        { Test-ModuleManifest $script:modulePath -ErrorAction Stop } | Should -Not -Throw
         $commands = @(Get-Command -Module BetaCalendars.CalendarTools -CommandType Function)
         $commands.Count | Should -Be 8
         (Get-Command -Module BetaCalendars.CalendarTools -Name '*') | Should -Not -BeNullOrEmpty
