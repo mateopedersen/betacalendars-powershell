@@ -69,7 +69,9 @@ Describe 'date range and recurrence' {
     }
 
     It 'includes both endpoints across leap day' {
-        $dates = @(Get-BCDateRange -DateFrom '2024-02-28T23:00:00Z' -DateTo '2024-03-01T12:00:00Z')
+        $dateFrom = [datetime]::new(2024,2,28,23,0,0,[DateTimeKind]::Utc)
+        $dateTo = [datetime]::new(2024,3,1,12,0,0,[DateTimeKind]::Utc)
+        $dates = @(Get-BCDateRange -DateFrom $dateFrom -DateTo $dateTo)
         $dates.Count | Should -Be 3
         $dates[1].ToString('yyyy-MM-dd') | Should -Be '2024-02-29'
         $dates[0].Kind | Should -Be ([DateTimeKind]::Unspecified)
