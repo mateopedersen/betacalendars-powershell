@@ -12,16 +12,45 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        powershell: ['7.4', '7.5', '7.6']
+        powershell: ['7.4.20', '7.5.11', '7.6.6']
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: PSModule/install-powershell@159c2929fac34e3c7fc55d75e8997fb27fc7f75a # v1.0.0
-        with:
-          Version: ${{ matrix.powershell }}
-          Token: ''
+      - name: Install exact PowerShell version
+        shell: pwsh
+        run: |
+          $version = '${{ matrix.powershell }}'
+          if ($IsWindows) {
+            $asset = "PowerShell-$version-win-x64.zip"
+          } elseif ($IsMacOS) {
+            $asset = "powershell-$version-osx-arm64.tar.gz"
+          } else {
+            $asset = "powershell-$version-linux-x64.tar.gz"
+          }
+          $base = "https://github.com/PowerShell/PowerShell/releases/download/v$version"
+          $archive = Join-Path $env:RUNNER_TEMP $asset
+          $hashFile = Join-Path $env:RUNNER_TEMP 'powershell-hashes.sha256'
+          Invoke-WebRequest "$base/$asset" -OutFile $archive
+          Invoke-WebRequest "$base/hashes.sha256" -OutFile $hashFile
+          $entry = Get-Content $hashFile | Where-Object { $_ -match "\s$([regex]::Escape($asset))$" } | Select-Object -First 1
+          if (-not $entry) { throw "No release checksum found for $asset." }
+          $expected = ($entry -split '\s+')[0]
+          $actual = (Get-FileHash $archive -Algorithm SHA256).Hash
+          if ($actual -ne $expected) { throw "Checksum mismatch for $asset." }
+          $installPath = Join-Path $env:RUNNER_TEMP "pwsh-$version"
+          New-Item -ItemType Directory -Path $installPath -Force | Out-Null
+          if ($IsWindows) {
+            Expand-Archive -Path $archive -DestinationPath $installPath -Force
+          } else {
+            tar -xzf $archive -C $installPath
+            if ($LASTEXITCODE -ne 0) { throw 'PowerShell archive extraction failed.' }
+            chmod +x (Join-Path $installPath 'pwsh')
+            if ($LASTEXITCODE -ne 0) { throw 'Unable to mark pwsh executable.' }
+          }
+          $installPath | Out-File -FilePath $env:GITHUB_PATH -Append -Encoding utf8
+          & (Join-Path $installPath 'pwsh') -NoLogo -NoProfile -Command '$PSVersionTable.PSVersion.ToString()'
       - name: Validate manifest
         shell: pwsh
         run: Test-ModuleManifest ./src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1 | Out-Null
