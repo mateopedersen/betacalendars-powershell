@@ -1,0 +1,30 @@
+TOPIC
+    about_BetaCalendars_CalendarTools
+
+SHORT DESCRIPTION
+    Offline tools for date-only calendar data and temporal regression testing.
+
+LONG DESCRIPTION
+    BetaCalendars.CalendarTools works with local Gregorian civil dates and does
+    not use the current time, a time zone, network services, telemetry, or a
+    holiday database. Calendar commands return structured objects suitable for
+    pipelines, reports, static sites, and CI.
+
+    New-BCMonthGrid supports a fixed 42-cell or compact grid, every weekday as
+    the week start, and adjacent-date or blank overflow. New-BCYearGrid builds
+    twelve grids. Get-BCRecurrence always requires inclusive date bounds and a
+    positive occurrence limit; it is not an RFC 5545 implementation.
+
+    Date parameters accept DateTime for broad PowerShell interoperability, but
+    their time component is discarded. Results are date-only values represented
+    as DateTime with an unspecified kind.
+
+EXAMPLES
+    New-BCMonthGrid -Year 2027 -Month 1 -Layout FixedSixWeeks
+    New-BCYearTurnFixture -Year 2026 | Export-BCCalendarFixture -Format Json
+
+PROJECT
+    Beta Calendars: https://www.betacalendars.com/
+
+SEE ALSO
+    https://github.com/mateopedersen/betacalendars-powershell

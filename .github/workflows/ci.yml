@@ -1,0 +1,76 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+jobs:
+  test:
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        powershell: ['7.4', '7.5', '7.6']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: PSModule/install-powershell@159c2929fac34e3c7fc55d75e8997fb27fc7f75a # v1.0.0
+        with:
+          Version: ${{ matrix.powershell }}
+          Token: ''
+      - name: Validate manifest
+        shell: pwsh
+        run: Test-ModuleManifest ./src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1 | Out-Null
+      - name: Install quality tools
+        shell: pwsh
+        run: |
+          Set-PSRepository PSGallery -InstallationPolicy Trusted
+          Install-Module PSScriptAnalyzer -Scope CurrentUser -Force
+          Install-Module Pester -MinimumVersion 5.0 -Scope CurrentUser -Force
+      - name: Analyze
+        shell: pwsh
+        run: |
+          $issues = @(Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error,Warning)
+          $issues | Format-Table -AutoSize
+          if ($issues.Where({$_.Severity -eq 'Error'}).Count) { throw 'PSScriptAnalyzer errors found.' }
+      - name: Import and smoke test
+        shell: pwsh
+        run: |
+          Import-Module ./src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1 -Force
+          if ((New-BCMonthGrid -Year 2027 -Month 1).Cells.Count -ne 42) { throw 'Grid must have 42 cells.' }
+          if ((New-BCYearGrid -Year 2027).Months.Count -ne 12) { throw 'Year must contain twelve months.' }
+          if ((New-BCYearTurnFixture -Year 2026)[3].DaysInMonth -ne 28) { throw 'Expected February 2027 to have 28 days.' }
+          if ((New-BCYearTurnFixture -Year 2027)[3].DaysInMonth -ne 29) { throw 'Expected February 2028 to have 29 days.' }
+          Get-Command -Module BetaCalendars.CalendarTools | Out-Null
+          Get-Help New-BCMonthGrid -Examples | Out-Null
+      - name: Pester
+        shell: pwsh
+        run: |
+          $coverageFiles = (Get-ChildItem ./src/BetaCalendars.CalendarTools/Public -Filter *.ps1).FullName
+          Invoke-Pester ./tests -CI -CodeCoverage $coverageFiles
+      - name: Run examples and help smoke tests
+        shell: pwsh
+        run: |
+          Get-ChildItem ./examples -Filter *.ps1 | ForEach-Object { & $_.FullName | Out-Null }
+          Import-Module ./src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTools.psd1 -Force
+          foreach ($command in (Get-Command -Module BetaCalendars.CalendarTools -CommandType Function)) {
+            if (-not (Get-Help $command.Name -Full).Synopsis) { throw "Missing help for $($command.Name)." }
+          }
+      - name: Local publish and install smoke test
+        shell: pwsh
+        run: |
+          $root = Join-Path $env:RUNNER_TEMP 'bc-local-gallery'
+          $stage = Join-Path $env:RUNNER_TEMP 'bc-stage'
+          $publishPath = Join-Path $stage 'BetaCalendars.CalendarTools'
+          New-Item -ItemType Directory -Path $root,$stage -Force | Out-Null
+          Copy-Item ./src/BetaCalendars.CalendarTools $publishPath -Recurse -Force
+          Register-PSRepository -Name BCValidation -SourceLocation $root -PublishLocation $root -InstallationPolicy Trusted
+          Publish-Module -Path $publishPath -Repository BCValidation -NuGetApiKey local-only -ErrorAction Stop
+          Install-Module -Name BetaCalendars.CalendarTools -Repository BCValidation -Scope CurrentUser -Force -ErrorAction Stop
+          Import-Module BetaCalendars.CalendarTools -Force -ErrorAction Stop
+          if ((New-BCMonthGrid -Year 2027 -Month 1).Cells.Count -ne 42) { throw 'Installed month grid did not contain 42 cells.' }
+          if ((New-BCYearGrid -Year 2027).Months.Count -ne 12) { throw 'Installed year grid did not contain twelve months.' }

@@ -1,0 +1,4 @@
+.coverage
+TestResults.xml
+*.nupkg
+publish/
