@@ -20,6 +20,8 @@ function New-BCYearGrid {
     BetaCalendars.CalendarTools.YearGrid
     .NOTES
     All twelve grids are computed offline from the Gregorian calendar.
+    .LINK
+    New-BCMonthGrid
     #>
     [CmdletBinding()]
     param(

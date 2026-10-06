@@ -48,3 +48,7 @@ Test-ModuleManifest ./src/BetaCalendars.CalendarTools/BetaCalendars.CalendarTool
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+## Project
+
+BetaCalendars.CalendarTools is maintained as part of the [Beta Calendars](https://www.betacalendars.com/) developer tooling project.

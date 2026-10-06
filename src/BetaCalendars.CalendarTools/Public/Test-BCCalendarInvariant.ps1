@@ -16,6 +16,8 @@ function Test-BCCalendarInvariant {
     BetaCalendars.CalendarTools.InvariantResult objects.
     .NOTES
     A failed check has Passed set to false; callers can use these results as a CI gate.
+    .LINK
+    New-BCMonthGrid
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory)][ValidateRange(1,9999)][int]$Year,

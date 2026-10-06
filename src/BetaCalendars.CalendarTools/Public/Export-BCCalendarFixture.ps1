@@ -18,6 +18,8 @@ function Export-BCCalendarFixture {
     System.String serialized content or the written path.
     .NOTES
     JSON is indented; CSV column order follows the input properties.
+    .LINK
+    New-BCYearTurnFixture
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory,ValueFromPipeline)][object]$InputObject,

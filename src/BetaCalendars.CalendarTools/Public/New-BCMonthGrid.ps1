@@ -24,6 +24,8 @@ function New-BCMonthGrid {
     BetaCalendars.CalendarTools.MonthGrid
     .NOTES
     Calculations use timezone-independent Gregorian civil dates.
+    .LINK
+    New-BCYearGrid
     #>
     [CmdletBinding()]
     param(

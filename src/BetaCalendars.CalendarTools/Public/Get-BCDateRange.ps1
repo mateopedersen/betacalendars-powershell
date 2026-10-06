@@ -16,6 +16,8 @@ function Get-BCDateRange {
     System.DateTime values with DateTimeKind Unspecified.
     .NOTES
     Time components and timezone kinds are ignored.
+    .LINK
+    Get-BCRecurrence
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory)][datetime]$DateFrom,[Parameter(Mandatory)][datetime]$DateTo)

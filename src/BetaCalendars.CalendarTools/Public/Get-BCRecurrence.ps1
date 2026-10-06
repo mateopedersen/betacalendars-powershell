@@ -32,6 +32,8 @@ function Get-BCRecurrence {
     System.DateTime values with DateTimeKind Unspecified.
     .NOTES
     Every expansion has explicit date bounds and a positive occurrence cap. This is not RFC 5545.
+    .LINK
+    Get-BCDateRange
     #>
     [CmdletBinding()]
     param(

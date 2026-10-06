@@ -14,6 +14,8 @@ function Get-BCBoundaryReport {
     BetaCalendars.CalendarTools.BoundaryReport
     .NOTES
     Useful for deterministic temporal regression fixtures.
+    .LINK
+    New-BCYearTurnFixture
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory)][ValidateRange(1,9999)][int]$Year)

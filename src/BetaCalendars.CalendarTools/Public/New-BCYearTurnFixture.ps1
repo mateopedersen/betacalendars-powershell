@@ -20,6 +20,8 @@ function New-BCYearTurnFixture {
     Four fixture objects, each containing a MonthGrid.
     .NOTES
     February length is calculated for the following year and follows Gregorian leap rules.
+    .LINK
+    Get-BCBoundaryReport
     #>
     [CmdletBinding()]
     param([Parameter(Mandatory)][ValidateRange(1,9998)][int]$Year,
